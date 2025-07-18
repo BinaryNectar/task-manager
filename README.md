@@ -42,27 +42,27 @@ A simple RESTful API for managing to‑do tasks, built with Flask and SQLAlchemy
 
 1. **Clone the repo**
 
-   ```bash
-  git clone https://github.com/binarynectar/task-manager.git
-  cd task-manager
+   ```
+   git clone https://github.com/binarynectar/task-manager.git
+   cd task-manager
    ```
 
 2. **Create & activate a virtual environment**
 
-   ```bash
+   ```
    python3 -m venv venv
    source venv/bin/activate
    ```
 
 3. **Install dependencies**
 
-   ```bash
+   ```
    pip install -r requirements.txt
    ```
 
 ## Running the Application
 
-```bash
+```
 python app.py
 ```
 
@@ -85,7 +85,7 @@ All endpoints accept and return JSON.
 
 * **Create**
 
-  ```bash
+  ```
   curl -X POST http://127.0.0.1:5000/tasks \
        -H \"Content-Type: application/json\" \
        -d '{\"title\":\"Buy milk\"}'
@@ -93,7 +93,7 @@ All endpoints accept and return JSON.
 
 * **Update**
 
-  ```bash
+  ```
   curl -X PUT http://127.0.0.1:5000/tasks/1 \
        -H \"Content-Type: application/json\" \
        -d '{\"completed\":true}'
@@ -101,7 +101,7 @@ All endpoints accept and return JSON.
 
 * **Delete**
 
-  ```bash
+  ```
   curl -X DELETE http://127.0.0.1:5000/tasks/1
   ```
 
@@ -109,7 +109,7 @@ All endpoints accept and return JSON.
 
 This project uses **pytest** to validate all CRUD operations:
 
-```bash
+```
 pytest test_routes.py
 ```
 
