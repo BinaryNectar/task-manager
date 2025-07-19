@@ -1,128 +1,130 @@
-# Flask Task Manager API
+# Flask Task Manager
 
-A simple RESTful API for managing to‑do tasks, built with Flask and SQLAlchemy, backed by a local SQLite database.
+A combined Flask API and built‑in web UI for creating, reading, updating, and deleting to‑do tasks.
 
 ## Features
 
-* Create, read, update, and delete tasks
-* JSON-based API
-* Automatic database initialization
+- **REST API** for tasks (`/tasks`): create, list, view, update, delete.
+- **Web UI** served at `/`: add, edit, complete, and remove tasks with a modern Bootstrap design.
+- **Single origin**—no CORS required: back end and front end run together.
+- **SQLite** persistence in `tasks.db`, auto‑initialized on first launch.
 
 ## Tech Stack
 
-* Python 3.x
-* Flask (2.2.2)
-* SQLAlchemy (2.0.x)
-* SQLite (local file `tasks.db`)
+- Python 3.x  
+- Flask (2.2.2)  
+- SQLAlchemy (2.0.x)  
+- SQLite  
+- Bootstrap 5 + Bootstrap Icons (front‑end)
 
 ## Project Structure
 
 ```
 .
-├── app.py             # Application factory & entry point
+├── app.py             # Entry point: configures Flask, serves static UI, registers routes
 ├── database.py        # DB engine, session setup & init_db()
-├── models.py          # SQLAlchemy models (Task)
-├── routes.py          # Flask Blueprint with CRUD endpoints
-├── services.py        # Business‑logic layer & ORM calls
+├── models.py          # SQLAlchemy Task model
+├── routes.py          # Blueprint: API endpoints (GET/POST/PUT/DELETE /tasks)
+├── services.py        # TaskService: business logic & ORM calls
+├── static/            # Front‑end assets
+│   └── index.html     # Single‑page UI, interacts with API
 ├── requirements.txt   # Python dependencies
 └── test_routes.py     # Pytest suite for API endpoints
 ```
 
-> **Note:** `tasks.db` is created automatically on first run via `init_db()` in `routes.py`.
+> **Note:** `tasks.db` is created automatically via `init_db()` when you start the app.
 
 ## Prerequisites
 
-* **Git**
+- **Git** (for cloning & updates)
+  - Ubuntu/Debian: `sudo apt-get update && sudo apt-get install git`
+  - macOS (Homebrew): `brew install git`
+  - Windows: [Download Git](https://git-scm.com/download/win)
+- **Python 3.8+**
 
-  * Ubuntu/Debian: `sudo apt-get update && sudo apt-get install git`
-  * macOS (Homebrew): `brew install git`
-  * Windows: [Download Git](https://git-scm.com/download/win)
+## Setup & Git Commands
 
-## Installation
+```bash
+# Clone the repo (first time)
+git clone git@github.com:<your-username>/task-manager.git
+cd task-manager
 
-1. **Clone the repo**
+# Pull latest changes
+git pull origin main
 
-   ```
-   git clone https://github.com/binarynectar/task-manager.git
-   cd task-manager
-   ```
+# (Optional) Virtual environment
+python3 -m venv venv
+source venv/bin/activate
 
-2. **Create & activate a virtual environment**
-
-   ```
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-
-   ```
-   pip install -r requirements.txt
-   ```
-
-## Running the Application
-
+# Install Python dependencies
+pip install -r requirements.txt
 ```
+
+## Running Locally
+
+```bash
 python app.py
 ```
 
-* By default, the app runs in debug mode on `http://127.0.0.1:5000`
-* The SQLite file `tasks.db` will be created in the project root
+- Opens server on **http://127.0.0.1:5000/**
+- API at `/tasks`  
+- UI at `/` (renders `static/index.html`)
+
+## Web UI Usage
+
+1. Navigate to **http://127.0.0.1:5000/** in your browser.  
+2. Add a new task via the input field and **+** button.  
+3. Toggle a task’s completion with the checkbox.  
+4. Edit a task title with the **✏️ Edit** button.  
+5. Remove a task with the **🗑️ Delete** button.
 
 ## API Endpoints
 
 All endpoints accept and return JSON.
 
-| Method | Endpoint          | Description                           | Request Body                                      | Response                       |
-| ------ | ----------------- | ------------------------------------- | ------------------------------------------------- | ------------------------------ |
-| GET    | `/tasks`          | List all tasks                        | *None*                                            | `[{id, title, completed}, …]`  |
-| GET    | `/tasks/<int:id>` | Retrieve a single task                | *None*                                            | `{id, title, completed}`       |
-| POST   | `/tasks`          | Create a new task                     | `{ \"title\": string, \"completed\"?: boolean }`  | `{id, title, completed}` (201) |
-| PUT    | `/tasks/<int:id>` | Update title and/or completion status | `{ \"title\"?: string, \"completed\"?: boolean }` | `{id, title, completed}`       |
-| DELETE | `/tasks/<int:id>` | Delete a task                         | *None*                                            | *Empty body* (204)             |
+| Method | Endpoint          | Description                           | Request Body                                   | Response                         |
+| ------ | ----------------- | ------------------------------------- | ---------------------------------------------- | -------------------------------- |
+| GET    | `/tasks`          | List all tasks                        | _None_                                         | `[{id, title, completed}, …]`    |
+| GET    | `/tasks/<id>`     | Retrieve a single task                | _None_                                         | `{id, title, completed}`         |
+| POST   | `/tasks`          | Create a new task                     | `{"title": string}`                            | `{id, title, completed}` (201)   |
+| PUT    | `/tasks/<id>`     | Update title and/or completion status | `{"title"?: string, "completed"?: boolean}`    | `{id, title, completed}`         |
+| DELETE | `/tasks/<id>`     | Delete a task                         | _None_                                         | _Empty body_ (204)               |
 
-### Examples
+### Example cURL
 
-* **Create**
+```bash
+# Create
+echo '{"title":"Buy milk"}' \
+  | curl -X POST http://127.0.0.1:5000/tasks \
+         -H "Content-Type: application/json" \
+         -d @-
 
-  ```
-  curl -X POST http://127.0.0.1:5000/tasks \
-       -H \"Content-Type: application/json\" \
-       -d '{\"title\":\"Buy milk\"}'
-  ```
+# Update
+echo '{"completed":true}' \
+  | curl -X PUT http://127.0.0.1:5000/tasks/1 \
+         -H "Content-Type: application/json" \
+         -d @-
 
-* **Update**
-
-  ```
-  curl -X PUT http://127.0.0.1:5000/tasks/1 \
-       -H \"Content-Type: application/json\" \
-       -d '{\"completed\":true}'
-  ```
-
-* **Delete**
-
-  ```
-  curl -X DELETE http://127.0.0.1:5000/tasks/1
-  ```
+# Delete
+curl -X DELETE http://127.0.0.1:5000/tasks/1
+```
 
 ## Testing
 
-This project uses **pytest** to validate all CRUD operations:
+Run the Pytest suite to verify API functionality:
 
-```
+```bash
 pytest test_routes.py
 ```
 
-Tests automatically recreate the database schema for isolation.
-
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/foo`)
-3. Commit your changes (`git commit -am 'Add foo'`)
-4. Push to the branch (`git push origin feature/foo`)
+1. Fork the repo  
+2. Create a feature branch: `git checkout -b feature/foo`  
+3. Commit: `git commit -m 'Add foo'`  
+4. Push: `git push origin feature/foo`  
 5. Open a Pull Request
 
 ## License
 
-This project is released under the MIT License.
+Released under the MIT License.
