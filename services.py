@@ -1,5 +1,6 @@
 from database import SessionLocal
 from models import Task
+from datetime import date
 
 class TaskNotFoundError(Exception):
     """Raised when a Task with given ID does not exist."""
@@ -25,10 +26,10 @@ class TaskService:
         finally:
             session.close()
 
-    def create_task(self, title: str, completed: bool = False):
+    def create_task(self, title: str, deadline: date = None, completed: bool = False):
         session = SessionLocal()
         try:
-            task = Task(title=title, completed=completed)
+            task = Task(title=title, deadline=deadline, completed=completed)
             session.add(task)
             session.commit()
             session.refresh(task)
@@ -36,7 +37,7 @@ class TaskService:
         finally:
             session.close()
 
-    def update_task(self, task_id: int, title: str = None, completed: bool = None):
+    def update_task(self, task_id: int, title: str = None, deadline: date = None, completed: bool = None):
         session = SessionLocal()
         try:
             task = session.get(Task, task_id)
@@ -44,6 +45,8 @@ class TaskService:
                 raise TaskNotFoundError(f"No task with id {task_id}")
             if title is not None:
                 task.title = title
+            if deadline is not None:
+                task.deadline = deadline
             if completed is not None:
                 task.completed = completed
             session.commit()
